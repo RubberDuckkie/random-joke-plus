@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Tests complete\"",
-    "start": "node ./src/index.js"
+    "start": "node ./src/index.js",
+    "pretest": "eslint ./src --fix"
   },
   "keywords": [],
   "author": "",

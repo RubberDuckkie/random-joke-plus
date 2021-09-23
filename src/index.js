@@ -8,7 +8,7 @@ const url = require('url');
 const query = require('querystring');
 
 const htmlHandler = require('./htmlResponses.js');
-const jsonHandler = require('./jsonResponses.js');
+const responseHandler = require('./responses.js');
 
 // 3 - locally this will be 3000, on Heroku it will be assigned
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
@@ -34,32 +34,36 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 
 const urlStruct = {
-  '/random-joke': jsonHandler.getRandomJokeResponse,
-  '/random-jokes': jsonHandler.getRandomJokesResponse,
+  '/random-joke': responseHandler.getRandomJokeResponse,
+  '/random-jokes': responseHandler.getRandomJokesResponse,
   notFound: htmlHandler.get404Response,
 };
  
     
- 
+
+
 
 
 // 7 - this is the function that will be called every time a client request comes in
 // this time we will look at the `pathname`, and send back the appropriate page
 // note that in this course we'll be using arrow functions 100% of the time in our server-side code
 const onRequest = (request, response) => {
+  let acceptedTypes = request.headers.accept && request.headers.accept.split(',');
+acceptedTypes = acceptedTypes || [];
   //console.log(request.headers);
   const parsedUrl = url.parse(request.url);
   const { pathname } = parsedUrl;
+ 
   //console.log("parsedUrl=", parsedUrl);
   //console.log("pathname=", pathname);
 
   const params = query.parse(parsedUrl.query);
- 
+
   
   if(urlStruct[pathname]){
-     urlStruct[pathname](request, response);
+     urlStruct[pathname](request, response, params, acceptedTypes);
   } else {
-     urlStruct.notFound(request, response)
+     urlStruct.notFound(request, response);
    };
    
    
