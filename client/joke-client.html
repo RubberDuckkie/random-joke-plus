@@ -21,11 +21,40 @@
       }
     </style>
     <script>
+      const handleResponse = (e) =>{
+          console.log("e.target =", e.target);
+          console.log("e.target.response =", e.target.response);
+          const obj = JSON.parse(e.target.response);
+          console.log("obj=",obj)
+      }
       const downloadJoke = (e) => {
         // remember that an `Event` object gets passed along every time that an event handler or listener calls a function
         // the `target` property of that event points at the element that sent the event, in this case a button
         console.log(`An element of id=${e.target.id} was clicked!`);
+
+        const jokeURL = "random-joke";
+        const xhr = new XMLHttpRequest();
+        xhr.onload = handleResponse;
+        xhr.open("GET", jokeURL);
+        xhr.setRequestHeader('Accept', "application/javascript");
+        xhr.send();
+        let jokeBox = document.getElementById('jokeContainer').innerHTML;
+        document.appendChild(jokeBox);
+        
       }
+
+      const downloadJokes = (e) =>{
+          const moreJokesURL = "randomjokes?max=5";
+          const xhr = new XMLHttpRequest();
+          xhr.onload = handleResponse;
+          xhr.open("GET", moreJokesURL);
+          xhr.setRequestHeader('Accept', "application/javascript");
+          xhr.send();
+          let jokeBox = document.getElementById('jokeContainer').innerHTML;
+        document.appendChild(jokeBox);
+      }
+
+
       
       const init = () => {
          // An Event *Handler*
@@ -33,6 +62,7 @@
       
         // An Event *Listener*
         document.querySelector("#btnJoke").addEventListener("click", downloadJoke);
+        document.querySelector("#btnJokes").addEventListener("click", downloadJokes)
       
         // **Actually, event handlers and listeners are NOT exactly the same in all use cases - what ARE the differences?**
       }
@@ -56,7 +86,7 @@
     
     <section>
       <h2>How about 5 jokes?</h2>
-      <p><button>Show me 5 Jokes!</button></p>
+      <p><button id="btnJokes">Show me 5 Jokes!</button></p>
     </section>
     
   </body>
