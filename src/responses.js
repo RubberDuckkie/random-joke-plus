@@ -17,17 +17,16 @@ const jokes = [
   { q: 'What do you get when you cross a snowman with a vampire?', a: 'Frostbite' },
 ];
 
-const respond = (request, response, content, type) => {
+const respond = (request, response, content, type, status) => {
   response.writeHead(200, { 'Content-Type': type });
+  if(status === "HEAD"){
+    response.writeHead(200, {'Content-Length': status});
+  }
   response.write(content);
   response.end();
 };
 
-const getRandomJoke = (request, response, max, acceptedTypes) => {
-  max = Number(max);
-  max = !max ? 10 : max;
-  max = max < 10 ? 10 : max;
-
+const getRandomJoke = (request, response, max, acceptedTypes, httpMethod) => {
   const random = Math.floor(Math.random() * jokes.length);
   const randomJoke = jokes[random];
 
@@ -36,7 +35,11 @@ const getRandomJoke = (request, response, max, acceptedTypes) => {
     a: jokes[random].a,
   };
 
-  if (acceptedTypes === 'text/xml') {
+  if(httpMethod === "HEAD"){
+    return respond(request, response, JSON.stringify(randomJoke), 'application/json', httpMethod )
+  }
+
+  if (acceptedTypes[0] === 'text/xml') {
     const responseXML = `
         <joke>
             <q>${jokeXML.q}</q>
@@ -44,59 +47,44 @@ const getRandomJoke = (request, response, max, acceptedTypes) => {
         </joke>
     
     `;
-    return respond(request, response, responseXML, 'text/xml');
+    return respond(request, response, responseXML, 'text/xml', httpMethod);
   }
 
-  return JSON.stringify(randomJoke);
+  return respond(request, response, JSON.stringify(randomJoke), 'application/json', httpMethod);
 };
 
-const getRandomJokes = (max = 2, request, response, acceptedTypes) => {
-  max = Number(max);
-  max = !max ? 2 : max;
-  max = max < 2 ? 2 : max;
+const getRandomJokes = (request, response, max, acceptedTypes, httpMethod) => {
   const random = Math.floor(Math.random() * jokes.length);
-  const randomJoke = jokes[random];
 
   const randomJokeArray = [];
 
   const jokeXML = {
-    q: randomJoke.q,
-    a: randomJoke.a,
+    q: jokes[random].q,
+    a: jokes[random].a,
   };
 
   const responseXML = `
-    <jokes>
+      <jokes>
         <joke>
-            <q>${jokeXML.q}</q>
-            <a>${jokeXML.a}</a>
+          <q>${jokeXML.q}</q>
+          <a>${jokeXML.a}</a>
         </joke>
-    <jokes>
-    `;
+      <jokes>
+  `;
 
-  if (acceptedTypes === 'text/xml') {
+  if (acceptedTypes[0] === 'text/xml') {
     for (let i = 0; i < max; i++) {
-      return respond(request, response, responseXML, 'text/xml');
+      randomJokeArray.push(jokes[random - i]);
     }
-  } else {
-    for (let i = 0; i < max; i++) {
-      randomJokeArray.push(jokes[random]);
-    }
+
+    return respond(request, response, responseXML, 'text/xml', httpMethod);
+  }
+  for (let i = 0; i < max; i++) {
+    randomJokeArray.push(jokes[random - i]);
   }
 
-  return JSON.stringify(randomJokeArray);
+  return respond(request, response, JSON.stringify(randomJokeArray), 'application/json', httpMethod);
 };
 
-const getRandomJokeResponse = (request, response, params, acceptedTypes) => {
-  response.writeHead(200, { 'Content-Type': acceptedTypes });
-  response.write(getRandomJoke(params));
-  response.end();
-};
-
-const getRandomJokesResponse = (request, response, params, acceptedTypes) => {
-  response.writeHead(200, { 'Content-Type': acceptedTypes });
-  response.write(getRandomJokes(params.max));
-  response.end();
-};
-
-module.exports.getRandomJokeResponse = getRandomJokeResponse;
-module.exports.getRandomJokesResponse = getRandomJokesResponse;
+module.exports.getRandomJoke = getRandomJoke;
+module.exports.getRandomJokes = getRandomJokes;
