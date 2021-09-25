@@ -34,13 +34,16 @@ const urlStruct = {
     '/random-joke': responseHandler.getRandomJoke,
     '/random-jokes': responseHandler.getRandomJokes,
     notFound: htmlHandler.get404Response,
+    '/joke-client': htmlHandler.getJokeClientResponse,
+
   },
   HEAD: {
     '/random-joke': responseHandler.getRandomJoke,
     '/random-jokes': responseHandler.getRandomJokes,
     notFound: htmlHandler.get404Response,
-  }
-  
+
+  },
+
 };
 
 // 7 - this is the function that will be called every time a client request comes in
@@ -52,21 +55,19 @@ const onRequest = (request, response) => {
   // console.log(request.headers);
   const parsedUrl = url.parse(request.url);
   const { pathname } = parsedUrl;
-  const getBinarySize = string => Buffer.byteLength(string, 'utf8');
+  const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
 
   // console.log("parsedUrl=", parsedUrl);
   // console.log("pathname=", pathname);
-  const httpMethod = request.method
+  const httpMethod = request.method;
   const params = query.parse(parsedUrl.query);
   const { max } = params;
 
-
-  if(httpMethod === "HEAD"){
+  if (httpMethod === 'HEAD') {
     console.log('So yes Head?');
     getBinarySize(pathname);
     urlStruct[httpMethod][parsedUrl.pathname](request, response, max, acceptedTypes, httpMethod);
-    
-  } else if (httpMethod === "GET") {
+  } else if (httpMethod === 'GET') {
     urlStruct[httpMethod][parsedUrl.pathname](request, response, max, acceptedTypes, httpMethod);
   } else {
     urlStruct[httpMethod].notFound(request, response);

@@ -19,8 +19,8 @@ const jokes = [
 
 const respond = (request, response, content, type, status) => {
   response.writeHead(200, { 'Content-Type': type });
-  if(status === "HEAD"){
-    response.writeHead(200, {'Content-Length': status});
+  if (status === 'HEAD') {
+    response.writeHead(200, { 'Content-Length': status });
   }
   response.write(content);
   response.end();
@@ -35,8 +35,8 @@ const getRandomJoke = (request, response, max, acceptedTypes, httpMethod) => {
     a: jokes[random].a,
   };
 
-  if(httpMethod === "HEAD"){
-    return respond(request, response, JSON.stringify(randomJoke), 'application/json', httpMethod )
+  if (httpMethod === 'HEAD') {
+    return respond(request, response, JSON.stringify(randomJoke), 'application/json', httpMethod);
   }
 
   if (acceptedTypes[0] === 'text/xml') {
