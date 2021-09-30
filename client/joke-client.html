@@ -25,33 +25,40 @@
           console.log("e.target =", e.target);
           console.log("e.target.response =", e.target.response);
           const obj = JSON.parse(e.target.response);
-          console.log("obj=",obj)
+          console.log("obj=",obj);
+          //now go ahead and update #jokeContainer with the contents of the joke
       }
       const downloadJoke = (e) => {
         // remember that an `Event` object gets passed along every time that an event handler or listener calls a function
         // the `target` property of that event points at the element that sent the event, in this case a button
         console.log(`An element of id=${e.target.id} was clicked!`);
 
-        const jokeURL = "random-joke";
+        const jokeURL = "/random-joke";
         const xhr = new XMLHttpRequest();
         xhr.onload = handleResponse;
         xhr.open("GET", jokeURL);
+        //with XHR, after we open a connection, but before we `send()`, we can set 1 or more HTTP request headers
+        //this isn't strictly necessary because "/random-joke" sends JSON be default
         xhr.setRequestHeader('Accept', "application/javascript");
         xhr.send();
-        let jokeBox = document.getElementById('jokeContainer').innerHTML;
-        document.appendChild(jokeBox);
         
+        document.querySelector('#jokeContainer').innerHTML = `
+          <p>${xhr.response}</p>
+        `;
+
       }
 
       const downloadJokes = (e) =>{
-          const moreJokesURL = "randomjokes?max=5";
+          const moreJokesURL = "/random-jokes?max=5";
           const xhr = new XMLHttpRequest();
           xhr.onload = handleResponse;
           xhr.open("GET", moreJokesURL);
           xhr.setRequestHeader('Accept', "application/javascript");
           xhr.send();
-          let jokeBox = document.getElementById('jokeContainer').innerHTML;
-        document.appendChild(jokeBox);
+          
+          document.querySelector('#mutliJokeHolder').innerHTML = `
+          <p>${xhr.response}</p>
+        `;
       }
 
 
@@ -87,6 +94,9 @@
     <section>
       <h2>How about 5 jokes?</h2>
       <p><button id="btnJokes">Show me 5 Jokes!</button></p>
+      <div id="multiJokeHolder">
+        
+      </div>
     </section>
     
   </body>
