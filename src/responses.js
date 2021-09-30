@@ -17,13 +17,19 @@ const jokes = [
   { q: 'What do you get when you cross a snowman with a vampire?', a: 'Frostbite' },
 ];
 
+const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
+
 const respond = (request, response, content, type, status) => {
-  response.writeHead(200, { 'Content-Type': type });
+  const headers = { 'Content-Type': type };
   if (status === 'HEAD') {
-    response.writeHead(200, { 'Content-Length': status });
+    headers['Content-Length'] = getBinarySize(content);
+    response.writeHead(200, headers);
+    response.end();
+  } else {
+    response.writeHead(200, { 'Content-Type': type });
+    response.write(content);
+    response.end();
   }
-  response.write(content);
-  response.end();
 };
 
 const getRandomJoke = (request, response, max, acceptedTypes, httpMethod) => {
@@ -55,29 +61,22 @@ const getRandomJoke = (request, response, max, acceptedTypes, httpMethod) => {
 
 const getRandomJokes = (request, response, max, acceptedTypes, httpMethod) => {
   const random = Math.floor(Math.random() * jokes.length);
-
   const randomJokeArray = [];
-
-  const jokeXML = {
-    q: jokes[random].q,
-    a: jokes[random].a,
-  };
-
-  const responseXML = `
-      <jokes>
-        <joke>
-          <q>${jokeXML.q}</q>
-          <a>${jokeXML.a}</a>
-        </joke>
-      <jokes>
-  `;
 
   if (acceptedTypes[0] === 'text/xml') {
     for (let i = 0; i < max; i++) {
       randomJokeArray.push(jokes[random - i]);
     }
-
-    return respond(request, response, responseXML, 'text/xml', httpMethod);
+    let xml = '<?xml version="1.0" ?>';
+    xml += '<jokes>';
+    for (const j of randomJokeArray) {
+      xml += '<joke>';
+      xml += `<q>${j.q}</q>`;
+      xml += `<a>${j.a}</a>`;
+      xml += '</joke>';
+    }
+    xml += '</jokes>';
+    return respond(request, response, xml, 'text/xml', httpMethod);
   }
   for (let i = 0; i < max; i++) {
     randomJokeArray.push(jokes[random - i]);
